@@ -1,0 +1,23 @@
+{
+    "name": "fin_discrim",
+    "build": {
+        "dockerfile": "Dockerfile",
+    },
+    "remoteEnv": {
+        "SSH_AUTH_SOCK": ""
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "ms-azuretools.vscode-containers",
+                "ms-toolsai.jupyter",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.vscode-python-envs",
+                "wraith13.unsaved-files-vscode"
+            ]
+        }
+    }
+}
