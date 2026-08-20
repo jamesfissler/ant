@@ -135,6 +135,13 @@ def test_parse_plan_document_rejects_an_empty_verdict_plan() -> None:
         parse_plan_document(plan, "plan.md")
 
 
+def test_parse_plan_document_rejects_an_empty_critique() -> None:
+    """The critique is an output field now, so a blank one cannot pass through."""
+    plan = PLAN.replace("### The question is not open\n\nThat part is weak.\n", "")
+    with pytest.raises(ValueError, match="Critique of the Plan' is empty"):
+        parse_plan_document(plan, "plan.md")
+
+
 def test_build_item_pairs_each_document_with_its_own_verdict() -> None:
     document_a = parse_plan_document(PLAN)
     document_b = parse_plan_document(PLAN.replace("A Title", "B Title"))
@@ -144,6 +151,8 @@ def test_build_item_pairs_each_document_with_its_own_verdict() -> None:
         "seed_idea",
         "plan_A",
         "plan_B",
+        "critique_A",
+        "critique_B",
         "gold_preference",
         "gold_critique_A",
         "gold_critique_B",
@@ -152,8 +161,12 @@ def test_build_item_pairs_each_document_with_its_own_verdict() -> None:
     assert item["seed_idea"] == "the seed idea"
     assert item["plan_A"].startswith("# A Title")
     assert item["plan_B"].startswith("# B Title")
+    assert item["critique_A"] == document_a.critique
+    assert item["critique_B"] == document_b.critique
     assert item["gold_critique_A"] == document_a.verdict_plan
     assert item["gold_critique_B"] == document_b.verdict_plan
+    # The self-critique and the verdict on the plan are different sections.
+    assert item["critique_A"] != item["gold_critique_A"]
     assert item["gold_preference"] == ""
     assert item["why_alternative_is_convincing"] == ""
 
@@ -240,8 +253,8 @@ def test_cli_reproduces_a_curated_eval_item(tmp_path: Path) -> None:
     result = CliRunner().invoke(
         main,
         ["--seed-ideas", "docs/seed_ideas.md", "--seed-index", "1",
-         "--plan-a", "docs/evaluation_idea_plans/order-book-imbalance.md",
-         "--plan-b", "docs/seed_idea_plans/order-book-imbalance.md",
+         "--plan-a", "docs/seed_idea_plans/order-book-imbalance.md",
+         "--plan-b", "docs/evaluation_idea_plans/order-book-imbalance.md",
          "--out", str(out)],
     )
     assert result.exit_code == 0, result.output
@@ -249,3 +262,6 @@ def test_cli_reproduces_a_curated_eval_item(tmp_path: Path) -> None:
     curated = json.loads(Path("data/eval_items/order-book-imbalance.json").read_text())
     for field in ("seed_idea", "plan_A", "plan_B", "gold_critique_A", "gold_critique_B"):
         assert generated[field] == curated[field], field
+    # The critiques are new, so the curated item has nothing to compare against.
+    assert generated["critique_A"].startswith("### ")
+    assert "Critique of the Plan" not in generated["critique_A"]

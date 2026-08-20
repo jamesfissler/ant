@@ -4,7 +4,8 @@ A plan document holds four parts in a fixed order: the plan itself, a
 ``## Critique of the Plan`` section, then ``## My Verdict`` with ``### Plan``
 and ``### Critique`` subsections. This module splits that structure apart and
 recombines two such documents into the JSON shape :mod:`fin_discrim.items`
-reads back, leaving the gold judgement fields blank for a human to fill in.
+reads back: each file contributes its plan, its self-critique, and the ``###
+Plan`` verdict on it, with the gold judgement fields left blank for a human.
 
 Deciding which two plan files belong to a given seed idea is the caller's job:
 nothing here searches directories or guesses at a match.
@@ -38,6 +39,7 @@ class PlanDocument:
     plan: str
     """Everything before ``## Critique of the Plan``, including the title."""
     critique: str
+    """The ``## Critique of the Plan`` section: the plan's own self-critique."""
     verdict_plan: str
     """The ``### Plan`` subsection of ``## My Verdict`` - the gold critique."""
     verdict_critique: str
@@ -201,6 +203,8 @@ def parse_plan_document(text: str, source: str = "<text>") -> PlanDocument:
 
     if not document.plan:
         raise ValueError(f"{source}: the plan section is empty")
+    if not document.critique:
+        raise ValueError(f"{source}: '## {CRITIQUE_HEADING}' is empty")
     if not document.verdict_plan:
         raise ValueError(
             f"{source}: '### {VERDICT_PLAN_HEADING}' under "
@@ -212,7 +216,12 @@ def parse_plan_document(text: str, source: str = "<text>") -> PlanDocument:
 def build_item(
     seed_idea: str, plan_a: PlanDocument, plan_b: PlanDocument
 ) -> dict[str, str]:
-    """The eval item payload; gold preference and rationale are left blank."""
+    """The eval item payload; gold preference and rationale are left blank.
+
+    ``critique_A``/``critique_B`` are each plan's own ``## Critique of the
+    Plan`` section, distinct from the ``gold_critique_*`` fields, which hold the
+    hand-written verdict on the plan.
+    """
     idea = seed_idea.strip()
     if not idea:
         raise ValueError("seed idea is empty")
@@ -220,6 +229,8 @@ def build_item(
         "seed_idea": idea,
         "plan_A": plan_a.plan,
         "plan_B": plan_b.plan,
+        "critique_A": plan_a.critique,
+        "critique_B": plan_b.critique,
         "gold_preference": "",
         "gold_critique_A": plan_a.verdict_plan,
         "gold_critique_B": plan_b.verdict_plan,

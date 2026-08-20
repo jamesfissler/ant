@@ -45,9 +45,9 @@ docs/seed_ideas.md  ──┬──>  docs/seed_idea_plans/        (plan A)
 
 Each plan markdown file carries the plan, then a `## Critique of the Plan`
 section Claude wrote about its own plan, then a hand-added `## My Verdict` with
-`### Plan` and `### Critique` subsections. `fin-discrim-item` reads the plan and
-the `### Plan` verdict out of each file; the gold preference itself is filled in
-by hand.
+`### Plan` and `### Critique` subsections. `fin-discrim-item` reads the plan,
+the critique, and the `### Plan` verdict out of each file; the gold preference
+itself and the reasons why the alternative is convincing are filled in by hand.
 
 ## Setup
 

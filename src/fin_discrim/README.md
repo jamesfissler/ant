@@ -46,8 +46,10 @@ single pass with B shown first, if you want the cheaper one-sided check.
 `fin-discrim-item` turns one seed idea plus two plan markdown files into an eval
 item JSON. It assumes each plan file is laid out as the plan, then
 `## Critique of the Plan`, then `## My Verdict` with `### Plan` and
-`### Critique` subsections; `plan_X` is everything before the critique heading
-and `gold_critique_X` is the `### Plan` subsection of the verdict.
+`### Critique` subsections. Each file contributes three fields: `plan_X` is
+everything before the critique heading, `critique_X` is the
+`## Critique of the Plan` section, and `gold_critique_X` is the `### Plan`
+subsection of the verdict.
 
 ```bash
 uv run --locked fin-discrim-item --seed-ideas docs/seed_ideas.md --list-seeds
