@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+from anthropic import omit
+from anthropic.types import OutputConfigParam
+
 from fin_discrim.items import EvalItem
 from fin_discrim.judge import (
+    DEFAULT_CAPABILITIES,
     SYSTEM_PROMPT,
     _to_preference,
     build_prompt,
+    capabilities_for,
     opposite,
+    request_params,
 )
 
 ITEM = EvalItem(
@@ -63,3 +69,40 @@ def test_to_preference_maps_position_back_to_label() -> None:
 def test_opposite_flips_order() -> None:
     assert opposite("as_is") == "swapped"
     assert opposite("swapped") == "as_is"
+
+
+def test_capabilities_resolve_through_a_dated_snapshot_suffix() -> None:
+    """`--model claude-haiku-4-5-20251001` must find the base alias."""
+    assert capabilities_for("claude-haiku-4-5-20251001") == capabilities_for(
+        "claude-haiku-4-5"
+    )
+    assert not capabilities_for("claude-haiku-4-5-20251001").adaptive_thinking
+
+
+def test_capabilities_for_current_and_unknown_models() -> None:
+    assert capabilities_for("claude-opus-5").adaptive_thinking
+    assert capabilities_for("claude-opus-5").effort
+    # An id the table has never heard of gets the shape every model accepts.
+    assert capabilities_for("some-future-model") is DEFAULT_CAPABILITIES
+    assert not DEFAULT_CAPABILITIES.adaptive_thinking
+
+
+def _format_type(output_config: OutputConfigParam) -> str | None:
+    """The response-format kind, without asserting on optional TypedDict keys."""
+    response_format = output_config.get("format")
+    return None if response_format is None else response_format["type"]
+
+
+def test_request_params_send_thinking_and_effort_to_a_current_model() -> None:
+    thinking, output_config = request_params("claude-opus-5", "high")
+    assert thinking == {"type": "adaptive"}
+    assert output_config.get("effort") == "high"
+    assert _format_type(output_config) == "json_schema"
+
+
+def test_request_params_drop_thinking_and_effort_for_a_legacy_model() -> None:
+    thinking, output_config = request_params("claude-haiku-4-5", "high")
+    assert thinking is omit
+    assert "effort" not in output_config
+    # The structured output schema is supported everywhere and must survive.
+    assert _format_type(output_config) == "json_schema"

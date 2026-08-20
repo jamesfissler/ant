@@ -8,9 +8,17 @@ from pathlib import Path
 from typing import Any, Self
 
 import pytest
+from anthropic import omit
 from click.testing import CliRunner, Result
 
-from fin_discrim.cli import RunConfig, main, plan_run, run, select_items
+from fin_discrim.cli import (
+    RunConfig,
+    capability_notes,
+    main,
+    plan_run,
+    run,
+    select_items,
+)
 from fin_discrim.items import EvalItem, load_items
 from fin_discrim.judge import Judgement, JudgementFailure
 from fin_discrim.report import render_report, results_to_json
@@ -147,10 +155,31 @@ def test_run_sends_both_plans_and_the_seed_idea() -> None:
 
 def test_run_passes_effort_and_schema_through() -> None:
     client = StubClient()
-    run(client, [make_item("one")], make_config(effort="low"))  # type: ignore[arg-type]
-    output_config = client.calls[0]["output_config"]
+    config = make_config(models=("claude-opus-5",), effort="low")
+    run(client, [make_item("one")], config)  # type: ignore[arg-type]
+    call = client.calls[0]
+    assert call["thinking"] == {"type": "adaptive"}
+    output_config = call["output_config"]
     assert output_config["effort"] == "low"
     assert output_config["format"]["type"] == "json_schema"
+
+
+def test_run_omits_thinking_and_effort_for_a_legacy_model() -> None:
+    """Haiku 4.5 rejects both; the schema must survive."""
+    client = StubClient()
+    config = make_config(models=("claude-haiku-4-5-20251001",), effort="low")
+    run(client, [make_item("one")], config)  # type: ignore[arg-type]
+    call = client.calls[0]
+    assert call["thinking"] is omit
+    assert "effort" not in call["output_config"]
+    assert call["output_config"]["format"]["type"] == "json_schema"
+
+
+def test_capability_notes_name_only_the_legacy_models() -> None:
+    notes = capability_notes(("claude-opus-5", "claude-haiku-4-5-20251001"))
+    assert len(notes) == 1
+    assert "claude-haiku-4-5-20251001" in notes[0]
+    assert capability_notes(("claude-opus-5",)) == []
 
 
 def test_report_renders_for_a_full_run(tmp_path: Path) -> None:

@@ -6,10 +6,13 @@ only the seed idea and the two plans, presented under neutral labels.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Literal, cast
 
 import anthropic
+from anthropic import Omit, omit
 from anthropic.types import MessageParam, OutputConfigParam, ThinkingConfigParam
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -17,6 +20,7 @@ from fin_discrim.items import EvalItem, Preference
 
 PresentationOrder = Literal["as_is", "swapped"]
 Confidence = Literal["low", "medium", "high"]
+Effort = Literal["low", "medium", "high", "xhigh", "max"]
 
 SYSTEM_PROMPT = """\
 You are a senior research director at a systematic investment manager. Two \
@@ -112,6 +116,72 @@ class JudgementFailure:
 JudgeResult = Judgement | JudgementFailure
 
 
+@dataclass(frozen=True, slots=True)
+class ModelCapabilities:
+    """Which request features a model's generation accepts."""
+
+    adaptive_thinking: bool
+    effort: bool
+
+
+_ADAPTIVE = ModelCapabilities(adaptive_thinking=True, effort=True)
+_LEGACY = ModelCapabilities(adaptive_thinking=False, effort=False)
+
+#: Unknown model ids get the conservative shape. ``thinking`` and ``effort`` are
+#: additive, so a stale table degrades a judgement rather than failing the run,
+#: whereas sending either to a model that predates it is a 400.
+DEFAULT_CAPABILITIES = _LEGACY
+
+MODEL_CAPABILITIES: Mapping[str, ModelCapabilities] = MappingProxyType(
+    {
+        "claude-fable-5": _ADAPTIVE,
+        "claude-opus-5": _ADAPTIVE,
+        "claude-opus-4-8": _ADAPTIVE,
+        "claude-opus-4-7": _ADAPTIVE,
+        "claude-opus-4-6": _ADAPTIVE,
+        "claude-sonnet-5": _ADAPTIVE,
+        "claude-sonnet-4-6": _ADAPTIVE,
+        "claude-haiku-4-5": _LEGACY,
+    }
+)
+
+
+def capabilities_for(model: str) -> ModelCapabilities:
+    """Capabilities for a model id, tolerating a dated snapshot suffix.
+
+    ``claude-haiku-4-5-20251001`` resolves through the ``claude-haiku-4-5``
+    entry. Longest prefix wins, so an id is never claimed by a shorter alias
+    that happens to share its opening characters.
+    """
+    exact = MODEL_CAPABILITIES.get(model)
+    if exact is not None:
+        return exact
+    matches = [alias for alias in MODEL_CAPABILITIES if model.startswith(alias)]
+    if not matches:
+        return DEFAULT_CAPABILITIES
+    return MODEL_CAPABILITIES[max(matches, key=len)]
+
+
+def request_params(
+    model: str, effort: Effort
+) -> tuple[ThinkingConfigParam | Omit, OutputConfigParam]:
+    """The ``thinking``/``output_config`` pair a given model will accept.
+
+    Models older than the 4.6 generation reject both adaptive thinking and
+    ``effort``; they keep the JSON schema, which every judged model supports.
+    """
+    capabilities = capabilities_for(model)
+    output_config: OutputConfigParam = {
+        "format": {"type": "json_schema", "schema": _Verdict.model_json_schema()}
+    }
+    if capabilities.effort:
+        output_config["effort"] = effort
+    thinking: ThinkingConfigParam | Omit = (
+        {"type": "adaptive"} if capabilities.adaptive_thinking else omit
+    )
+    return thinking, output_config
+
+
 def build_prompt(item: EvalItem, order: PresentationOrder) -> str:
     """Render the user prompt, placing the plans in the requested order."""
     if order == "as_is":
@@ -136,7 +206,7 @@ def judge_item(
     item: EvalItem,
     *,
     order: PresentationOrder = "as_is",
-    effort: Literal["low", "medium", "high", "xhigh", "max"] = "high",
+    effort: Effort = "high",
     max_tokens: int = 8000,
 ) -> JudgeResult:
     """Ask one model to choose between an item's two plans.
@@ -144,11 +214,7 @@ def judge_item(
     Never raises for API or validation problems; those come back as a
     :class:`JudgementFailure` so one bad call cannot abort a whole run.
     """
-    output_config: OutputConfigParam = {
-        "effort": effort,
-        "format": {"type": "json_schema", "schema": _Verdict.model_json_schema()},
-    }
-    thinking: ThinkingConfigParam = {"type": "adaptive"}
+    thinking, output_config = request_params(model, effort)
     messages: list[MessageParam] = [
         {"role": "user", "content": build_prompt(item, order)}
     ]

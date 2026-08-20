@@ -7,22 +7,22 @@ from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, cast
+from typing import cast
 
 import anthropic
 import click
 
 from fin_discrim.items import EvalItem, load_items
 from fin_discrim.judge import (
+    Effort,
     JudgeResult,
     PresentationOrder,
+    capabilities_for,
     judge_item,
     opposite,
 )
 from fin_discrim.report import render_report, results_to_json
 from fin_discrim.scoring import score_all
-
-Effort = Literal["low", "medium", "high", "xhigh", "max"]
 
 DEFAULT_MODELS = ("claude-opus-5",)
 DEFAULT_ITEMS_DIR = Path("data/eval_items")
@@ -85,6 +85,21 @@ def plan_run(
     ]
 
 
+def capability_notes(models: Sequence[str]) -> list[str]:
+    """Warn about models whose requests will drop thinking and effort.
+
+    Those models are judged under a different configuration to the rest of the
+    run, which is a confound in any cross-model comparison, so say so up front.
+    """
+    return [
+        f"note: {model} supports neither adaptive thinking nor effort; "
+        f"it is judged without either, so its results are not directly "
+        f"comparable with models that reason before answering."
+        for model in models
+        if not capabilities_for(model).adaptive_thinking
+    ]
+
+
 def run(
     client: anthropic.Anthropic, items: Sequence[EvalItem], config: RunConfig
 ) -> list[JudgeResult]:
@@ -126,6 +141,8 @@ def execute(config: RunConfig) -> int:
         f"-> {len(calls)} API call(s) at effort={config.effort}.",
         err=True,
     )
+    for note in capability_notes(config.models):
+        click.echo(note, err=True)
 
     results = run(client, items, config)
     scores = score_all(list(config.models), results, items)
