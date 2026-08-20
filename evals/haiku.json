@@ -1,0 +1,98 @@
+{
+  "items": [
+    {
+      "item_id": "order-book-imbalance",
+      "gold_preference": "B"
+    },
+    {
+      "item_id": "order-flow-imbalance-extension",
+      "gold_preference": "B"
+    },
+    {
+      "item_id": "related-security-momentum",
+      "gold_preference": "B"
+    },
+    {
+      "item_id": "sector-mean-reversion",
+      "gold_preference": "B"
+    },
+    {
+      "item_id": "trade-impulse-mid-move",
+      "gold_preference": "B"
+    }
+  ],
+  "scores": [
+    {
+      "model": "claude-haiku-4-5",
+      "judged": 5,
+      "failed": 0,
+      "chose_a": 0,
+      "chose_b": 5,
+      "first_shown": 0,
+      "scored": 5,
+      "correct": 5,
+      "agreement_pairs": 0,
+      "order_flips": 0,
+      "accuracy": 1.0,
+      "first_position_rate": 0.0,
+      "flip_rate": null
+    }
+  ],
+  "judgements": [
+    {
+      "item_id": "order-book-imbalance",
+      "model": "claude-haiku-4-5",
+      "order": "as_is",
+      "preference": "B",
+      "confidence": "high",
+      "reasoning": "Plan 2 is superior because it is structured to reach a correct decision about the core claim with minimal wasted effort, while Plan 1 conflates signal validation with strategy implementation and risks substantial sunk costs before the fundamental question is answered. Plan 2's critical strength is Stage 2, which tests whether the observed correlation is a genuine forecast or merely an arithmetic restatement of the current microprice\u2014this is the decisive confound that determines whether any further work is warranted. Plan 1 mentions this concern in Section 2 but never isolates it experimentally; instead it defers to later stages and assumes the signal survives. Plan 2 also enforces strict pre-registration with genuine stopping rules (not checkpoints), uses cost-effective IC-based metrics on L2 data alone, and front-loads the highest-probability kills. Plan 1's 10-week timeline with fill simulators, queue models, and trading-policy evaluation is premature\u2014it assumes H1 through H5 are already established and jumps to implementation details (passive vs. aggressive policies, capacity modeling) that only matter if the signal has actual predictive content beyond microprice mechanics. Plan 1's data requirements (market-by-order, individual order tracking) are substantially more demanding and should only be justified after cheaper tests confirm the idea works. Plan 2's deliberate constraint to two signal variants before evaluation, rather than exploring weight families upfront, is exactly right\u2014it tests whether the family has signal before anyone claims to have optimized it. Plan 1's 'go' criterion (0.15 ticks per trade after fees) is concrete but appears downstream of deciding whether the signal is real; Plan 2's gates are ordered to answer 'is this real?' before 'could we trade it?'. Plan 1 is more ambitious in scope and would ultimately be more valuable if both the signal and capacity existed, but it is poorly sequenced for risk reduction.",
+      "input_tokens": 6823,
+      "output_tokens": 439,
+      "outcome": "correct"
+    },
+    {
+      "item_id": "order-flow-imbalance-extension",
+      "model": "claude-haiku-4-5",
+      "order": "as_is",
+      "preference": "B",
+      "confidence": "high",
+      "reasoning": "Plan 2 is superior because it applies discipline where Plan 1 is vulnerable to false positives and scope creep. Plan 1's critical weakness is its sequencing: it spends weeks on extension screening (Stage 2), validation (Stage 3), and combination (Stage 4) before testing whether the incremental gains are real in absolute terms\u2014a reversed priority that wastes resources on attribution when the ceiling itself may be negligible. Plan 2 flips this correctly by running a 'kitchen-sink' ceiling test on day one (Stage 1, Gate G1): if all eight candidates together cannot improve R\u00b2 by 20% relative to the base, no individual candidate will survive scrutiny, and the study stops before weeks of detailed work. Plan 1 also commits to six major extensions plus three additional hypotheses (H4, H5, H6) that expand in scope during execution\u2014each plausible in isolation, but collectively setting a low bar for what counts as success. Plan 2 freezes the candidate list upfront (C1\u2013C8 only, never modified) and applies a Benjamini\u2013Hochberg correction for multiple testing, making the results defensible against researcher degrees of freedom. Plan 1's pre-registered thresholds (15% net P&L improvement, improvement in \u22653 of 4 quarters) are sensible but come late, after a 12-week engagement; Plan 2's gates are tighter and earlier, stopping by day two if the premise fails. Plan 2 is also honest about scope: it explicitly excludes execution, fills, costs, and PnL from the main evaluation (Stage 5 in Plan 1 is deferred), using L2 data only and rank IC as the metric\u2014this is cleaner and prevents overfitting to a costly trading simulation. Plan 1's 24-month data window and 12-week timeline are defensible but expensive; Plan 2's 40-day development window and 80-day holdout (plus unseen names) achieves statistical power more efficiently by focusing on the signal question in isolation before engineering. Plan 1's appeal is its comprehensiveness and the care taken on the baseline\u2014but that same care on a weak premise is wasted effort.",
+      "input_tokens": 6227,
+      "output_tokens": 514,
+      "outcome": "correct"
+    },
+    {
+      "item_id": "related-security-momentum",
+      "model": "claude-haiku-4-5",
+      "order": "as_is",
+      "preference": "B",
+      "confidence": "high",
+      "reasoning": "Plan 2 is superior because it tests whether the idea is real before building infrastructure to trade it. Plan 1 immediately assumes directional lead-lag exists and jumps to portfolio construction, while Plan 2 spends its first week isolating the critical confound: whether apparent lead-lag is genuine information diffusion or merely correlated noise observed through asynchronous quotes. Plan 2's Stage 1 asymmetry test and Stage 2 staleness control are exactly the cheapest kills that could end the project, and they directly test the idea's load-bearing assumption rather than assuming it and moving to implementation. Plan 2's random-peer placebo (Stage 4) is a decisive control that Plan 1 lacks: it separates 'peers predict' from 'any correlated basket predicts.' Plan 1 pre-specifies seven hypotheses but then builds a portfolio-level backtest before confirming any of them exist\u2014a backwards order that guarantees overfitting risk. Plan 2's staged gates with explicit thresholds that must be cleared sequentially are defensible and pre-registered; Plan 1's success criteria (Sharpe > 1.0, effect > 3\u00d7 noise floor) are reasonable but arrive after nine weeks of backtest work, not before data touching. Plan 2's 6\u20137 day timeline is proportionate to what the idea could earn; Plan 1's 11-week build suggests confidence the effect exists when that is precisely what needs testing first.",
+      "input_tokens": 6678,
+      "output_tokens": 346,
+      "outcome": "correct"
+    },
+    {
+      "item_id": "sector-mean-reversion",
+      "model": "claude-haiku-4-5",
+      "order": "as_is",
+      "preference": "B",
+      "confidence": "high",
+      "reasoning": "Plan 2 is substantially superior for evaluating whether this seed idea deserves further investment. Plan 1 treats this as a solved problem\u2014it immediately builds a full market-neutral portfolio machine with an optimizer, factor models, and execution machinery\u2014when the fundamental question has not yet been answered. Plan 2 correctly prioritizes establishing signal efficacy through a stripped-down evaluation that isolates the core claim: do stocks displaced from their sector revert? It orders tests from cheapest to most informative (Stage 2's bid-ask bounce test is a critical kill gate that Plan 1 never addresses), pre-registers decision rules and thresholds before seeing results, and uses a sealed holdout. Plan 1's elaborate machinery obscures the actual source of any returns via convoluted factor residualisation and optimizer dynamics, making attribution almost impossible. Plan 1 also defers critical confounds like borrow availability and dispersion regime exposure into later stages rather than testing them early. Plan 2 honestly engages with whether the predicted reversion (Stage 5) is large enough to justify trading given market microstructure frictions\u2014a reality check Plan 1 avoids until late. The effort proportionality is also revealing: Plan 1 allocates 12 weeks to full portfolio implementation before knowing if the signal works; Plan 2 allocates six days to signal validation. If the signal fails any of the early gates (bounce, sector specificity, event contamination), Plan 2 stops; Plan 1 would have spent weeks building infrastructure for nothing. Plan 1's pre-registered success criteria require a 1.0 Sharpe post-costs, but this is only meaningful if the underlying signal was ever validated in the first place.",
+      "input_tokens": 6244,
+      "output_tokens": 394,
+      "outcome": "correct"
+    },
+    {
+      "item_id": "trade-impulse-mid-move",
+      "model": "claude-haiku-4-5",
+      "order": "as_is",
+      "preference": "B",
+      "confidence": "high",
+      "reasoning": "Both plans are rigorous and well-designed, but they differ fundamentally in scope and risk ordering. Plan 1 is a complete production-readiness study: it moves from signal validation to seven features and two trading policies (defensive and offensive) across multiple hypotheses about size effects, sweep structures, and self-excitation. Plan 2 is a methodologically focused screen that answers a single, harder question first: after removing mechanical effects, does any genuine predictive content exist? Plan 2 is superior because it orders work by kill probability rather than implementation completeness. The critical insight both recognize\u2014that a trade mechanically moves the mid at the touch, creating a 'failure mode'\u2014is treated very differently. Plan 2 makes this the *first gate* (Stage 0), with explicit falsification controls (leak positive control, sign-shuffle placebo, pseudo-trade placebo) to verify the impact/prediction boundary is clean. Only if this passes does it proceed. Plan 1 mentions mechanical depletion as 'partly definitional' and defers its exclusion to Stage 2 (week 3\u20134), after building the entire signal library and running hypothesis tests. This ordering is backwards: if the boundary is messy or the controls fail, weeks of feature engineering are wasted. Plan 2's Stage 1 gate (IC \u2265 0.02) is also more defensible than Plan 1's because it uses per-symbol-day rank ICs and acknowledges autocorrelation; Plan 1 pre-registers defensive success as 15% reduction in adverse-selection cost but does not gate on whether raw predictive power exists first. Plan 2 explicitly tests for and removes trade-sign persistence (Stage 2), which is a major confound Plan 1 does not isolate cleanly. Plan 2's latency gate (50% of zero-latency effect survives at realistic decision latency) is harder than Plan 1's 'edge vanishes' statement. On effort, Plan 2 is 6\u20137 days; Plan 1 is 10 weeks. For a seed idea that may well fail, Plan 2's lean kill-first design is more likely to reach a correct decision. Plan 1 is well-constructed but optimizes for launch readiness rather than truth-finding.",
+      "input_tokens": 6532,
+      "output_tokens": 526,
+      "outcome": "correct"
+    }
+  ]
+}
