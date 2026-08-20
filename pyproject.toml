@@ -5,8 +5,13 @@ description = "Financial research discriminator"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "anthropic>=0.125.0",
+    "click>=8.4.2",
     "numpy>=2.5.1",
 ]
+
+[project.scripts]
+fin-discrim = "fin_discrim.cli:main"
 
 [dependency-groups]
 dev = [
