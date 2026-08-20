@@ -73,3 +73,6 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
 USER ${USERNAME}
 
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> /home/${USERNAME}/.bashrc
+RUN brew install anthropics/tap/ant
