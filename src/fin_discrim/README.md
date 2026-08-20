@@ -41,6 +41,34 @@ item is judged twice, once with the plans swapped, and the report adds
 Accuracy is only meaningful when the flip rate is low. `--order swapped` runs a
 single pass with B shown first, if you want the cheaper one-sided check.
 
+### Building eval items from plan documents
+
+`fin-discrim-item` turns one seed idea plus two plan markdown files into an eval
+item JSON. It assumes each plan file is laid out as the plan, then
+`## Critique of the Plan`, then `## My Verdict` with `### Plan` and
+`### Critique` subsections; `plan_X` is everything before the critique heading
+and `gold_critique_X` is the `### Plan` subsection of the verdict.
+
+```bash
+uv run --locked fin-discrim-item --seed-ideas docs/seed_ideas.md --list-seeds
+
+uv run --locked fin-discrim-item \
+    --seed-ideas docs/seed_ideas.md --seed-index 1 \
+    --plan-a docs/evaluation_idea_plans/order-book-imbalance.md \
+    --plan-b docs/seed_idea_plans/order-book-imbalance.md \
+    --out data/eval_items/order-book-imbalance.json
+```
+
+Deciding which two files belong to a seed idea is the caller's job — the tool
+never searches a directory or guesses a match, so a driver script pairs them up
+and invokes it once per item. Drivers written in Python can import
+`parse_seed_ideas` instead of shelling out to `--list-seeds`.
+
+`gold_preference` and `why_alternative_is_convincing` are written blank for a
+human to fill in, which is why `--out` refuses to overwrite an existing file
+without `--force`: a rebuild would discard labels already recorded there. A
+generated item loads as an unlabelled `EvalItem` until `gold_preference` is set.
+
 ### Comparing across model generations
 
 Adaptive thinking and `--effort` only exist on the 4.6 generation and later.
@@ -68,3 +96,4 @@ model.
 | `scoring.py` | Accuracy, choice balance, position bias per model |
 | `report.py` | Text report and JSON dump |
 | `cli.py` | Argument parsing and the parallel run loop |
+| `build_item.py` | Build an eval item JSON from a seed idea and two plan documents |

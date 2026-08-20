@@ -12,6 +12,7 @@ dependencies = [
 
 [project.scripts]
 fin-discrim = "fin_discrim.cli:main"
+fin-discrim-item = "fin_discrim.build_item:main"
 
 [dependency-groups]
 dev = [
