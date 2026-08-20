@@ -1,0 +1,7 @@
+## Prompt for Claude used to generate the research plans
+
+In the `docs` folder you will find `seed_ideas.md` which contains a list of independent research ideas. For each idea in the file you need to produce a plan in a separate markdown file in `docs/evaluation_idea_plans` where the filename succinctly represents the idea. Please only do this for research ideas which are testing quantitative signals. Having produced the plan you should critique it and write the critique into the same file in a separate section after the plan. Do not cross-reference research ideas with one another in either the plans or the critiques, they should be treated completely independently. When producing the plans you should focus on simplicity of evaluation of the core signal idea. In particular, do not worry about full pnl evaluation of a given idea since these signals are likely to form part of a larger model. Consider instead ways you might evaluate the efficacy of the signal exclusively using market data. Simplicity of the evaluation suite and the ability to early stop unpromising areas of research are important.
+
+## Using the Claude Code VSCode plugin
+
+The prompt was run with effort set to High, thinking mode is On, and the model chosen was the default model (reported as Opus 5 with 1M context). The prompt was run in a fresh conversation to give it a clear context.
