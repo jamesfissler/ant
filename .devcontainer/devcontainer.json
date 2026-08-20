@@ -17,7 +17,8 @@
                 "ms-python.vscode-pylance",
                 "ms-python.vscode-python-envs",
                 "wraith13.unsaved-files-vscode",
-                "anthropic.claude-code"
+                "anthropic.claude-code",
+                "ZainChen.json"
             ]
         }
     }
