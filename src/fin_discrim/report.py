@@ -16,7 +16,8 @@ def _pct(value: float | None) -> str:
     return "  n/a" if value is None else f"{value:6.1%}"
 
 
-def _table(headers: list[str], rows: list[list[str]]) -> list[str]:
+def format_table(headers: list[str], rows: list[list[str]]) -> list[str]:
+    """Column-aligned text table, as a list of lines."""
     widths = [
         max(len(headers[i]), *(len(row[i]) for row in rows)) if rows else len(headers[i])
         for i in range(len(headers))
@@ -65,7 +66,7 @@ def render_report(
                 cells.append(f"{judgement.preference}{mark}{suffix}")
             row.append(" ".join(cells))
         rows.append(row)
-    lines += _table(["item", "gold", *models], rows)
+    lines += format_table(["item", "gold", *models], rows)
     lines.append("")
 
     lines.append("Per-model scores")
@@ -82,7 +83,7 @@ def render_report(
         ]
         for score in scores
     ]
-    lines += _table(
+    lines += format_table(
         ["model", "correct", "accuracy", "A/B", "picked 1st", "flips", "errors"],
         score_rows,
     )

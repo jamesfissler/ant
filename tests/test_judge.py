@@ -16,6 +16,8 @@ from fin_discrim.judge import (
     request_params,
 )
 
+SCHEMA: dict[str, object] = {"type": "object", "properties": {}}
+
 ITEM = EvalItem(
     item_id="an-idea",
     seed_idea="the seed idea text",
@@ -94,14 +96,14 @@ def _format_type(output_config: OutputConfigParam) -> str | None:
 
 
 def test_request_params_send_thinking_and_effort_to_a_current_model() -> None:
-    thinking, output_config = request_params("claude-opus-5", "high")
+    thinking, output_config = request_params("claude-opus-5", "high", SCHEMA)
     assert thinking == {"type": "adaptive"}
     assert output_config.get("effort") == "high"
     assert _format_type(output_config) == "json_schema"
 
 
 def test_request_params_drop_thinking_and_effort_for_a_legacy_model() -> None:
-    thinking, output_config = request_params("claude-haiku-4-5", "high")
+    thinking, output_config = request_params("claude-haiku-4-5", "high", SCHEMA)
     assert thinking is omit
     assert "effort" not in output_config
     # The structured output schema is supported everywhere and must survive.

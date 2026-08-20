@@ -71,6 +71,42 @@ human to fill in, which is why `--out` refuses to overwrite an existing file
 without `--force`: a rebuild would discard labels already recorded there. A
 generated item loads as an unlabelled `EvalItem` until `gold_preference` is set.
 
+### Pointwise assessment (`fin-pointwise`)
+
+Where `fin-discrim` compares an item's two plans against each other,
+`fin-pointwise` scores **one** submission on its own terms against a suite of
+named dimensions. Same input files; `--side A|B` picks which submission.
+
+```bash
+uv run --locked fin-pointwise --list-dimensions
+uv run --locked fin-pointwise --side B
+uv run --locked fin-pointwise --both-sides --dimension kill-order --json-out evals/pointwise.json
+```
+
+Each dimension is scored by its **own** model call, so adding a dimension
+cannot change the scores of the existing ones — results stay comparable as the
+suite grows. Plan dimensions see the plan alone; critique dimensions see the
+critique together with the plan it criticises, since a critique cannot be
+judged without it.
+
+**Adding a dimension** is the intended extension. Append one `Dimension` to
+`DIMENSIONS` in [dimensions.py](pointwise/dimensions.py) — a key, a target
+(`plan` or `critique`), a question, and guidance on what separates a high score
+from a low one. The 1-5 scale is defined once and shared, so nothing else
+changes. The three shipped dimensions (`falsifiability`, `kill-order`,
+`critique-bite`) are a starting point, not a proposed standard.
+
+**Expert scores are optional.** An item may carry `expert_scores_A` /
+`expert_scores_B` objects keyed by dimension:
+
+```json
+"expert_scores_A": { "falsifiability": 3, "kill-order": 2 }
+```
+
+When present, the report adds expert and delta columns and reports mean
+absolute delta and exact-match rate per dimension; when absent it reports model
+scores alone and says so. No checked-in item carries them yet.
+
 ### Comparing across model generations
 
 Adaptive thinking and `--effort` only exist on the 4.6 generation and later.
@@ -98,4 +134,5 @@ model.
 | `scoring.py` | Accuracy, choice balance, position bias per model |
 | `report.py` | Text report and JSON dump |
 | `cli.py` | Argument parsing and the parallel run loop |
+| `pointwise/` | Pointwise assessment suite: `dimensions.py` (the extension point), `assess.py`, `scoring.py`, `report.py`, `cli.py` |
 | `build_item.py` | Build an eval item JSON from a seed idea and two plan documents |

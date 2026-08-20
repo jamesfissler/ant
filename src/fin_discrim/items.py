@@ -8,11 +8,14 @@ module decides what is sent to a model; see :mod:`fin_discrim.judge`.
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from collections.abc import Mapping
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
 
 Preference = Literal["A", "B"]
+Side = Literal["A", "B"]
+"""Which of an item's two submissions a pointwise assessment is about."""
 
 _PREFERENCE_ALIASES: dict[str, Preference] = {
     "a": "A",
@@ -34,10 +37,29 @@ class EvalItem:
     plan_b: str
     gold_preference: Preference | None
     """The held-back correct answer. ``None`` when the item is unlabelled."""
+    critique_a: str = ""
+    critique_b: str = ""
+    """Each plan's self-critique. Empty for items written before they existed."""
+    expert_scores_a: Mapping[str, int] = field(default_factory=dict)
+    expert_scores_b: Mapping[str, int] = field(default_factory=dict)
+    """Held-back per-dimension expert scores, keyed by dimension. Usually empty:
+    pointwise assessment reports model scores alone until these are filled in."""
 
     @property
     def is_labelled(self) -> bool:
         return self.gold_preference is not None
+
+    def plan(self, side: Side) -> str:
+        """The plan under assessment on this side."""
+        return self.plan_a if side == "A" else self.plan_b
+
+    def critique(self, side: Side) -> str:
+        """The self-critique of this side's plan."""
+        return self.critique_a if side == "A" else self.critique_b
+
+    def expert_scores(self, side: Side) -> Mapping[str, int]:
+        """Expert scores held for this side, empty when none were recorded."""
+        return self.expert_scores_a if side == "A" else self.expert_scores_b
 
 
 def parse_preference(raw: str) -> Preference | None:
@@ -66,7 +88,7 @@ def load_item(path: Path) -> EvalItem:
             f"{path}: expected a JSON object, got {type(payload).__name__}"
         )
 
-    def field(name: str) -> str:
+    def text(name: str) -> str:
         try:
             value = payload[name]
         except KeyError:
@@ -76,20 +98,48 @@ def load_item(path: Path) -> EvalItem:
         return value
 
     for name in ("seed_idea", "plan_A", "plan_B"):
-        if not field(name).strip():
+        if not text(name).strip():
             raise ValueError(f"{path}: field {name!r} is empty")
 
+    def optional_text(name: str) -> str:
+        """A field absent from older items; missing reads as empty, not an error."""
+        value = payload.get(name, "")
+        if not isinstance(value, str):
+            raise ValueError(f"{path}: field {name!r} must be a string")  # noqa: TRY004
+        return value
+
+    def scores(name: str) -> dict[str, int]:
+        """Expert scores for one side. Dimension keys are checked by whichever
+        evaluation suite consumes them, not here."""
+        value = payload.get(name, {})
+        if not isinstance(value, dict):
+            raise ValueError(  # noqa: TRY004
+                f"{path}: field {name!r} must be a JSON object of dimension scores"
+            )
+        parsed: dict[str, int] = {}
+        for key, raw in value.items():
+            if isinstance(raw, bool) or not isinstance(raw, int):
+                raise ValueError(  # noqa: TRY004
+                    f"{path}: expert score {name}[{str(key)!r}] must be an integer"
+                )
+            parsed[str(key)] = raw
+        return parsed
+
     try:
-        gold = parse_preference(field("gold_preference"))
+        gold = parse_preference(text("gold_preference"))
     except ValueError as exc:
         raise ValueError(f"{path}: {exc}") from None
 
     return EvalItem(
         item_id=path.stem,
-        seed_idea=field("seed_idea"),
-        plan_a=field("plan_A"),
-        plan_b=field("plan_B"),
+        seed_idea=text("seed_idea"),
+        plan_a=text("plan_A"),
+        plan_b=text("plan_B"),
         gold_preference=gold,
+        critique_a=optional_text("critique_A"),
+        critique_b=optional_text("critique_B"),
+        expert_scores_a=scores("expert_scores_A"),
+        expert_scores_b=scores("expert_scores_B"),
     )
 
 

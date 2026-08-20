@@ -1,0 +1,127 @@
+{
+  "summaries": [
+    {
+      "model": "claude-haiku-4-5",
+      "dimension": "kill-order",
+      "scored": 10,
+      "mean_score": 4.3,
+      "failed": 0,
+      "compared": 0,
+      "mean_absolute_delta": null,
+      "exact_matches": null,
+      "exact_match_rate": null
+    }
+  ],
+  "assessments": [
+    {
+      "item_id": "order-book-imbalance",
+      "model": "claude-haiku-4-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan structures experimentation to validate or kill the core hypothesis with minimal expense before committing to costly infrastructure. Stage 0 (data validation) is appropriately first\u2014a cheap, necessary gate that stops everything if failed. Stages 1\u20132 (unconditional predictability via regressions on ~10^9\u201310^10 updates) are the decisive disconfirming tests: they directly answer whether the signal has any predictive power at all before simulation. The plan explicitly states that if H1 fails here, the premise is falsified. Only after predictability is established does the work branch into costly components: Stage 3 (impulse response decomposition), Stage 5 (fill simulator with queue models), and Stage 6 (walk-forward robustness). The pre-registered success criteria are set before Stage 5, preventing p-hacking. However, there is a gap: Stage 4 (commitment test, checking for spoofing) runs *after* Stage 3, but the spoofing concern is acknowledged up front as potentially invalidating the entire idea ('is this signal just measuring spoofable, non-committal liquidity?'). Moving the age-weighted variant check into Stage 1 or 2, or at minimum explicitly stating that Stage 1 results could be discarded if Stage 4 reveals a spoofing problem, would tighten this. The ordering is sound and defensible, but not quite watertight in one crucial respect.",
+      "input_tokens": 3599,
+      "output_tokens": 333,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "order-book-imbalance",
+      "model": "claude-haiku-4-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan exemplifies the cheapest-kill-first principle across multiple dimensions. Stage 0 (harness validation with planted leakage and placebo tests) runs before any signal evaluation, costing 0.5 days. Stage 1 (raw IC at 1 day) is positioned before stability work. Critically, Stage 2\u2014the decisive microprice confound test\u2014is front-loaded at 1 day, deliberately placed before the 1-day stability work in Stage 5, because it's most likely to end the project. Stage 4 (latency sensitivity) precedes Stage 5 (cross-strata stability). The pre-registered decision rules with genuine stop thresholds at G0, G1, G2, G4, G5, and G6 ensure tests are not checkpoints but killing gates. The plan explicitly acknowledges this ordering principle: \"The stages are ordered so that the tests most likely to end the project run earliest and cost least\" and \"Running this before the stability and incrementality work is deliberate: it is the test most likely to end the project, and it costs a day.\" The effort timeline (5\u20136 days, 60% of stopping probability in first 2.5 days) confirms front-loading. No infrastructure building, simulation, or full backtesting precedes invalidation of the core hypothesis. A minor gap: Stage 3 (magnitude against frictions) is not a stop but a classification; it could in principle be run earlier to exclude \u03c1 \u2264 0.2 cases, though its placement does not violate the principle since it's cheap (0.5 days) and the plan clarifies it's informational rather than a hard gate.",
+      "input_tokens": 3955,
+      "output_tokens": 389,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "order-flow-imbalance-extension",
+      "model": "claude-haiku-4-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan demonstrates strong engagement with the 'cheapest disconfirming test first' principle but has a material gap. The experimental design correctly sequences work to test the core premise before infrastructure-heavy stages: Stage 0 validates data reconstruction (cheap), Stage 1 establishes and documents a good baseline (critical gating step\u2014if OFI barely works, extensions are pointless), and Stage 2 screens extensions on training data with clear pre-specified thresholds before any validation or simulation. The plan explicitly states stopping points: \"Extensions that pass a pre-set screening threshold are evaluated once on the validation period\" and \"No-go if the improvement in R\u00b2 does not survive cost simulation.\" However, there is a significant ordering issue in Stage 5: the plan runs full cost simulation and tradability modeling on all surviving extensions before the untouched holdout evaluation in Stage 6. Cost simulation is moderately expensive and could kill extensions, yet those extensions have already consumed resources. A tighter sequence would run a lighter tradability check (or at minimum cost rough estimates) during screening itself, reserving full simulation for the final holdout-ready specification. The plan also does not pre-specify what threshold extensions must clear in training R\u00b2 to proceed to validation, so the go/no-go machinery lacks teeth. These are gaps in execution rather than conceptual gaps\u2014the thinking is there, but incompletely operationalized.",
+      "input_tokens": 3315,
+      "output_tokens": 314,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "order-flow-imbalance-extension",
+      "model": "claude-haiku-4-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan exemplifies cheapest disconfirming tests first through its explicit staged evaluation structure with early gates. Stage 0 (harness validation and base viability) runs first at ~1 day, testing whether the foundational order flow imbalance signal works at all via controls (leak injection, placebo), avoiding infrastructure waste if the premise fails. Stage 1 (the ceiling test at day 2) is the decisive kill mechanism: it asks whether eight candidates jointly improve R\u00b2 by \u226520% before any attribution work, stopping the project if they cannot, thereby preventing three weeks of candidate analysis on a non-existent effect. Only if both gates pass does Stage 2 begin the expensive attribution and stability work. The plan explicitly states 'This ordering is the most important structural decision in the plan' and contrasts it with 'the natural instinct' to evaluate one-by-one, which 'spends the entire budget before learning whether the ceiling is above the floor.' Gates G0\u2013G5 are pre-registered with stated failure actions (Stop, Soft stop, narrow claim). One minor gap: Stage 4's latency screen (\u03b4 \u2208 {0, 1ms, 5ms, 25ms, 100ms}) is described as a filter but could theoretically pass even if latency sensitivity suggests the effect is an artifact rather than a real signal; the framing treats it as a magnitude check rather than a potential disconfirm. However, this is a secondary consideration, as the primary disconfirms\u2014whether the base works, whether enrichments move the needle, whether they are stable\u2014are all front-loaded and properly ordered.",
+      "input_tokens": 3586,
+      "output_tokens": 372,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "related-security-momentum",
+      "model": "claude-haiku-4-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan exemplifies the principle by leading with Stage 0 \u2014 a timestamp and synchronisation audit designed to validate the measurement instrument itself before any signal estimation or backtesting. The plan explicitly states 'This must be quantified before anything else. If the noise floor exceeds the effect size we hope to find, the study cannot proceed on this data,' establishing a clear kill criterion that prevents expensive downstream work if the premise fails. Subsequent stages progress logically from cheap estimation (Stage 1) through characterisation (Stage 2) to progressively more expensive portfolio simulation (Stages 6\u20137), with intermediate stopping points built in: 'if raw beats residual, the strategy is market timing and should be re-labelled' (Stage 3), and decay analysis (Stage 5) runs 'early, because a strongly decaying effect changes the value of all subsequent work.' The pre-registered criteria explicitly gate the expensive holdout stage with no-go conditions tied to early findings. The one minor gap is that Stage 2 (leadership characterisation) could articulate more clearly what happens if observable characteristics do not predict leadership \u2014 the text notes complexity rises but does not state whether the plan stops or merely becomes more expensive \u2014 and Stage 4's conditioning analysis, though necessary, is placed after stages that have already committed to specific basket definitions.",
+      "input_tokens": 3307,
+      "output_tokens": 294,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "related-security-momentum",
+      "model": "claude-haiku-4-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan systematically orders work by lethality and cost. Stage 1\u2014the cross-correlation asymmetry test\u2014runs immediately (\\\"~1 day\\\") before signal construction and explicitly tests the idea's load-bearing assumption (directionality), with a hard stop gate (\\\"If the cross-correlation profile is symmetric, stop\\\"). Stage 2 isolates the staleness confound before touching signal efficacy. Stage 4 (signal IC) and later stages only run if earlier gates pass. The pre-registered decision table maps each test to its failure action. However, there is one structural gap: Stage 0 (data integrity and harness validation) runs first, and while it includes leak and placebo controls that are cheap, the plan does not explicitly justify why building and validating the quote-sampling harness should precede the asymmetry test, or whether a minimal asymmetry test could run on raw data as a kill before harness investment. A truly exemplary plan would have considered whether Stage 1 could run before Stage 0, or at least stated why Stage 0's overhead is justified. The ordering of Stages 1\u20137 is genuinely excellent and rare; the gate before Stage 0 is the only oversight.",
+      "input_tokens": 4058,
+      "output_tokens": 284,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "sector-mean-reversion",
+      "model": "claude-haiku-4-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan explicitly structures work in a staged experimental design (Section 6) that frontloads cheap falsification. Stage 0 (data integrity) gates everything. Stage 1 (residual reversion measurement via panel autocorrelation) tests the core H1 hypothesis \"cheaply, before any portfolio machinery exists\"\u2014this is the decisive test that could kill the idea. Stage 2 conditions the finding. Only after these cheap signal tests pass does the plan move to Stage 3\u20134 (naive and realistic backtests with full infrastructure). Critically, the plan states explicitly what stops if early stages fail: \"This gates everything else\" (Stage 0) and the framing of Stage 1 as a \"reference point\" preceding portfolio construction. However, there is one meaningful gap: the plan does not specify what autocorrelation threshold or statistical threshold in Stage 1 would constitute failure and halt progression. The go/no-go criteria appear only at the end (Section 7) applied to the full backtest, not to the early cheap tests, leaving some ambiguity about what result in Stage 1 actually stops the work.",
+      "input_tokens": 3183,
+      "output_tokens": 258,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "sector-mean-reversion",
+      "model": "claude-haiku-4-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan exemplifies the cheapest-disconfirming-test-first principle with uncommon rigor. Stage 0 validates the harness with leak and placebo controls before any real signal measurement. Stage 1 measures raw predictive content across a parameter grid. Crucially, Stage 2\u2014the microstructure confound test\u2014runs immediately after, explicitly framed as 'the decisive early kill' that targets 'the single most common explanation for a positive result on this idea.' The skip test and quote-mid test are positioned to eliminate bid-ask bounce before any deeper investigation. Stage 3 then tests whether the sector framing adds value over universe-wide residualisation. Only after these cheap kill-mechanisms have passed does the plan move to event contamination, magnitude checks, and stability analysis. The plan includes explicit gates with stop conditions at each stage, making the killing logic transparent. A minor gap: Stage 2's 60% IC-retention threshold for the skip test is not justified\u2014why 60% rather than 75% or 40%?\u2014and the one-day gap may not fully isolate bounce from genuine fast reversion. However, this is a small assumption in an otherwise exemplary design that prioritizes early termination and orders work by both cost and disconfirming power.",
+      "input_tokens": 3730,
+      "output_tokens": 292,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "trade-impulse-mid-move",
+      "model": "claude-haiku-4-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan demonstrates genuine engagement with the principle of ordering tests by cost and decisiveness, with explicit stopping points built in. Stage 0 (event stream validation) identifies a critical cheap test\u2014causal consistency checking\u2014that could invalidate the entire premise before expensive work begins. Stage 1 (aggressor classification audit) runs early to quantify contamination rather than assume it. Stage 2 (mechanical exclusion) explicitly separates the trivial signal from the genuine one, treating cleared-touch events as 'partly definitional' and designating non-cleared events as 'primary evidence,' creating a clear no-go condition. However, a material gap exists: the plan does not pre-register the decision rule for what happens if Stage 2 reveals that most of the signal is mechanical. It says 'report results separately' but does not commit to a stopping rule\u2014it could proceed to expensive Stages 3\u20137 even if cleared-touch events dominate. Additionally, while Stages 3\u20135 are ordered reasonably (non-parametric before pooled, then impulse decomposition), there is no explicit checkpoint between Stage 5 and the expensive Stage 6 tradability simulations. A decisive cheaper test\u2014whether the transient component is large enough and predictable enough to matter\u2014could stop the work, but the plan does not commit to a threshold. Stage 7 (latency destruction) is well-placed at the end, but by then weeks of simulation work may be complete.",
+      "input_tokens": 3213,
+      "output_tokens": 332,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "trade-impulse-mid-move",
+      "model": "claude-haiku-4-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan demonstrates sophisticated understanding of kill-first sequencing and explicitly organizes work around this principle. Stage 0 runs first (~1 day) and tests the methodological crux\u2014whether the impact/prediction boundary is cleanly identifiable\u2014with three control tests (leak positive, sign-shuffle, pseudo-trade placebo) that would expose fundamental pipeline errors before any substantive analysis. This is genuinely the cheapest way to invalidate the entire premise. Subsequent stages are ordered by decision gates: Stage 1 tests whether anything survives beyond the impact window (IC \u2265 0.02); Stage 2 tests whether the effect is just sign autocorrelation; Stage 5 tests latency feasibility. The plan freezes thresholds pre-registered and includes explicit stopping rules tied to measurable failures. However, there is one unexamined assumption: Stage 0's identification of the impact/prediction boundary relies on visual inspection of the response curve ('identify the knee') rather than specifying an automated, objective criterion for where t+ should be set. If that knee is genuinely ambiguous, the plan says 'stop', but the gate does not pre-specify how much ambiguity triggers that stop. This matters because t+ is the single most sensitive input to all downstream results, and subjective placement of it could leak bias into the very gate designed to prevent it. Stage 6 stability checks come late (day 6) relative to the cheap early gates, which is appropriate, but the ordering of Stages 4 and 5 is minor\u2014both are ~0.5 day\u2014so no material issue there.",
+      "input_tokens": 3975,
+      "output_tokens": 365,
+      "outcome": "scored"
+    }
+  ]
+}

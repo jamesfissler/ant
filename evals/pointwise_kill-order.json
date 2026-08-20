@@ -1,0 +1,127 @@
+{
+  "summaries": [
+    {
+      "model": "claude-opus-5",
+      "dimension": "kill-order",
+      "scored": 10,
+      "mean_score": 4.4,
+      "failed": 0,
+      "compared": 0,
+      "mean_absolute_delta": null,
+      "exact_matches": null,
+      "exact_match_rate": null
+    }
+  ],
+  "assessments": [
+    {
+      "item_id": "order-book-imbalance",
+      "model": "claude-opus-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan is genuinely staged with cheap-to-expensive ordering: Stage 0 data validation carries an explicit hard gate (\"No modelling begins until this passes; a book reconstruction bug produces a spectacular and entirely false signal\"), then cheap event-level regressions (Stage 1), non-parametric shape (Stage 2), the impulse-response permanence decomposition (Stage 3) and the order-age commitment test (Stage 4) all precede the expensive queue-position fill simulator and trading policies (Stages 6-8 weeks). It also pre-registers go/no-go thresholds \"fixed before Stage 5 is run,\" and correctly places the permanence decomposition before the aggressive-policy simulation since it \"tells us which trading policy family is even viable.\" The gaps: only Stage 0 has a stated stopping rule \\u2014 Stages 1-4 have no numeric abandonment thresholds (Stage 4 merely says \"capacity assumptions must be revised downward sharply\" rather than halt), so the pre-registration bites only at the last, most expensive step; and there is no small-sample or single-instrument pilot before committing to 12 months of MBO data across ~30 instruments and 10^9-10^10 event regressions, when a few weeks of one large-tick future would settle H1 far more cheaply.",
+      "input_tokens": 4884,
+      "output_tokens": 944,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "order-book-imbalance",
+      "model": "claude-opus-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan is explicitly architected around cheapest-kill-first: Stage 0 harness/leak-and-placebo validation (0.5 day) precedes any claim, Stage 1 raw IC (1 day) precedes everything else, and Stage 2 \u2014 the microprice confound, identified as \"the decisive test\" and justified by the identity pm = m + (s/2)\u00b7I1 \u2014 is deliberately placed before stability, incrementality and holdout with the stated rationale that \"it is the test most likely to end the project, and it costs a day.\" It explicitly forbids building the expensive thing early (\"No execution simulator is required, and none should be built at this stage\"), pre-registers every gate with a named failure action in a decision table, and quantifies the front-loading (\"roughly 60% of the probability of stopping is discharged in the first two and a half\" days). It also handles usually-missed items: the planted-leakage detection test, the effective-sample-size warning about autocorrelated book states, latency-decay kill (G4) before incrementality work, and a distinction between failure and narrowing (G5, section 10). Minor quibble: latency sensitivity (G4, 0.5 day) is arguably cheaper and equally lethal than Stage 2 and could have run earlier, and Stage 5/6 ordering is only lightly justified \u2014 but this is a small ordering nuance, not a structural gap.",
+      "input_tokens": 5185,
+      "output_tokens": 466,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "order-flow-imbalance-extension",
+      "model": "claude-opus-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan does order work with explicit gates: Stage 1 builds a deliberately strong baseline as a control, Stage 2 screens each extension on cheap incremental R\\u00b2 within purged CV on training data only, Stage 3 is a single validation pass with a demotion rule for re-tuning, and the expensive queue-aware cost simulation (Stage 5) and untouched holdout (Stage 6) come last. Discard rules are pre-registered ('an extension advances only if it improves incremental R\\u00b2... in a majority of instruments, with consistent sign'; 'Any extension that cannot beat the baseline out of sample is discarded, and the discard is reported'), and Stage 0's iceberg/hidden-liquidity diagnostics are a genuinely cheap early check that could invalidate H2 and H5 before they are built. The gap that keeps this from exemplary: the plan itself names costs as the most likely killer ('No-go if the improvement in R\\u00b2 does not survive cost simulation \\u2014 a very likely outcome for extensions that raise turnover') yet defers any turnover/cost hurdle to weeks 9\\u201310, when a back-of-envelope turnover-adjusted screen could sit inside Stage 2; there is also no small-subsample pilot before building features across 20\\u201330 names and 24 months, and no project-level abort rule if all extensions fail at Stage 2/3.",
+      "input_tokens": 4572,
+      "output_tokens": 2046,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "order-flow-imbalance-extension",
+      "model": "claude-opus-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan is explicitly architected around cheapest-kill-first: Stage 0 (~1 day) validates the harness with a leak positive control and a placebo shuffle before any claim is measured, and gates on base viability ('If the base does not work on our data, there is nothing to extend and the project stops'). Stage 1 is a genuine decisive early stop \u2014 the kitchen-sink 'ceiling test' asks whether all eight enrichments jointly clear +20% \u0394R\u00b2_oos before any attribution work, with explicit reasoning ('The natural instinct is to evaluate candidates one at a time and accumulate; that spends the entire budget before learning whether the ceiling is above the floor'). Every stage has a pre-registered threshold and a named failure action, and \u00a710 states most stop probability is discharged by day two. The notable gap: the latency screen (G4, only 0.5 day) is a plausible whole-programme killer \u2014 if the increment dies at 25ms it does not matter which candidate carried it \u2014 yet it is placed after two days of attribution and stability work rather than run on the kitchen-sink model immediately after Stage 1; the G1 20% threshold is also asserted without justification.",
+      "input_tokens": 4799,
+      "output_tokens": 730,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "related-security-momentum",
+      "model": "claude-opus-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The ordering is genuinely killer-first: Stage 0 is a cheap timestamp/synchronisation audit on unrelated pairs that establishes an instrumentation noise floor, with an explicit stop condition (\"If the noise floor exceeds the effect size we hope to find, the study cannot proceed on this data\"), and this is reinforced in the pre-registered criteria (effect must be 3x the noise floor). The decay analysis is deliberately pulled forward (\"This is run early, because a strongly decaying effect changes the value of all subsequent work\") with a matching no-go, and the residual-vs-raw basket comparison at Stage 3 carries a hard no-go rule; the expensive portfolio simulation (weeks 6\\u20139), capacity work, and holdout come last. Gaps: Stages 1, 2 and 4 have no explicit abort thresholds (Stage 2 only \"changes the design\"), and no cheap back-of-envelope check that the measured lag magnitude exceeds half-spread is scheduled before four weeks of estimation \\u2014 all cost realism is deferred to the expensive stage, even though H7 is the most likely thing to kill this idea.",
+      "input_tokens": 4560,
+      "output_tokens": 1013,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "related-security-momentum",
+      "model": "claude-opus-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan is explicitly ordered around cheapest-kill-first: Stage 1 is the cross-correlation asymmetry test, stated to run \"before any signal construction is evaluated, because it can end the project in a day and it tests the idea's load-bearing assumption directly,\" with the unambiguous stop language \"If the cross-correlation profile is symmetric, stop. Nothing later in the plan can rescue this.\" Stage 2's fresh-quote staleness control (0.5 day) targets the most likely source of a false positive at Stage 1 and also stops the project; the plan concludes by naming exactly where the stop probability sits (\"the two stages carrying nearly all of the stop probability ... complete within the first two\"). Cheap harness controls (leak positive control, timestamp-shuffle placebo) precede everything, and every gate in the pre-registered table has a named failure action (stop / reopen stage 2 / narrow), including the sealed holdout. The only quibble is that the latency screen and the magnitude-versus-half-spread units check \u2014 both cheap and potentially fatal, and one the plan itself expects to \"bite\" \u2014 sit at Stage 6, though they do plausibly depend on the IC estimates from Stage 4; this is a minor sequencing nuance rather than a real gap in a plan that also handles the usually-missed confounds (asynchronous observation, random-peer null, incrementality over own lag and sector return).",
+      "input_tokens": 5341,
+      "output_tokens": 1266,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "sector-mean-reversion",
+      "model": "claude-opus-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan is genuinely ordered cheap-to-expensive and says so explicitly: Stage 0 data integrity \"gates everything else\"; Stage 1 is panel autocorrelation of residual returns by horizon, peer-group definition and cap tercile, which \"tests H1 and H3 directly and cheaply, before any portfolio machinery exists\"; only then conditioning (Stage 2), a naive reference backtest explicitly labelled unachievable (Stage 3), and the expensive optimiser/cost-model backtest (Stages 4\\u20137). Stage 5 also carries a real re-specification trigger (\"a factor bet wearing a reversion costume\"). The gaps: the pre-registered Go/No-go thresholds are all terminal (net Sharpe > 1.0, borrow costs, dispersion regimes) with no stated numeric kill threshold or stopping rule for Stages 1\\u20132, so the early cheap tests can inform but are not formally allowed to stop the project; and the cheapest genuine killer of the short leg \\u2014 borrow availability/fee on precisely the most divergent names \\u2014 is deferred to Stage 4 rather than sampled early, alongside three weeks of full data assembly (borrow, point-in-time fundamentals, event calendars) front-loaded before anything could invalidate the premise.",
+      "input_tokens": 4400,
+      "output_tokens": 1053,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "sector-mean-reversion",
+      "model": "claude-opus-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan is explicitly built as a staged kill sequence with named gates and pre-registered failure actions (\"Stop \u2014 effect is bid-ask bounce\", \"Reframe as universe-wide reversion; drop the sector claim\"), and it reasons about ordering rather than just listing stages: Stage 2 is placed early and labelled \"the decisive early kill\" because bid-ask bounce is \"the single most common explanation for a positive result on this idea\", and Section 9 notes the two stages carrying most of the stop probability complete within the first three days. It also removes the expensive work from the critical path entirely by redefining the target as a sector residual so that \"there is no need to construct long/short baskets, size positions, or run a portfolio optimiser\", with portfolio construction, cost modelling and PnL declared out of scope. It handles the usually-missed items: a Stage 0 leak positive control and within-sector shuffle placebo before any inference, the contiguity requirement as a cheap substitute for a formal multiple-testing correction, and a sealed holdout opened only at Stage 7. Minor quibbles only: Stage 5's cheap spread-versus-predicted-move units check could kill the idea and needs almost nothing beyond Stage 1 outputs, yet sits fifth, and the full point-in-time universe/GICS assembly is required up front without a cheaper subsample smoke test.",
+      "input_tokens": 4973,
+      "output_tokens": 1348,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "trade-impulse-mid-move",
+      "model": "claude-opus-5",
+      "side": "A",
+      "dimension": "kill-order",
+      "score": 4,
+      "justification": "The plan does order work cheap-to-expensive with explicit gates: Stage 0 event-stream validation carries a hard stop (\"a rate above a low threshold invalidates the whole study and must be fixed before proceeding\"), Stage 1 is a cheap classification audit, and Stage 2 mechanical exclusion is paired with a pre-registered no-go (\"if the entire measured effect resides in cleared-touch events\"). Expensive work \\u2014 policy simulation and latency destruction \\u2014 is deferred to Weeks 7\\u20139, and the latency no-go is pre-registered. The notable gap is that the single most likely killer for this idea is the latency/production-feasibility question, which the plan itself flags in Section 2 (\"the mechanical component of the response is over in microseconds\") yet places last; a cheap upfront measurement of the response path at production latency, or a quick check on the non-cleared subset, could be done in days and would kill the idea before six weeks of Hawkes and permanent/transient decomposition. Stages 4\\u20135 also carry no stopping conditions of their own, so they read as work that proceeds regardless.",
+      "input_tokens": 4419,
+      "output_tokens": 396,
+      "outcome": "scored"
+    },
+    {
+      "item_id": "trade-impulse-mid-move",
+      "model": "claude-opus-5",
+      "side": "B",
+      "dimension": "kill-order",
+      "score": 5,
+      "justification": "The plan is explicitly built around kill-first ordering: Stage 0 (one day) establishes the impact/prediction boundary and runs a leak positive control, sign-shuffle placebo, and pseudo-trade placebo, with Gate G0 stopping the project if the knee is not identifiable; Stage 1 (one day) kills on flat IC; Stage 2 kills if the effect is just trade-sign autocorrelation. Each gate has an explicit failure action, collected in a pre-registered decision table, and the plan states the reasoning for the ordering ('the two stages carrying most of the kill probability... completed in the first two'). It also explicitly forbids premature infrastructure: 'No execution simulator is needed and none should be built yet,' with PnL and cost modelling out of scope. It even guards the usual miss cases \u2014 a reversion result counts as a G1 pass with a sign flip, so the plan is not rigged to one answer, and the deliverable count is capped to prevent scope creep. The only quibble is that the cheap economic-magnitude check (Stage 4, \\u03c1 vs half-spread) carries no stop threshold and the equally cheap latency kill (Stage 5, 0.5 day, G5 at 50%) sits after purely descriptive work, but in a six-day plan this barely affects the ordering logic.",
+      "input_tokens": 5292,
+      "output_tokens": 1490,
+      "outcome": "scored"
+    }
+  ]
+}

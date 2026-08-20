@@ -40,7 +40,7 @@ docs/seed_ideas.md  ──┬──>  docs/seed_idea_plans/        (plan A)
 | `docs/evaluation_idea_plans/` | The second plan per idea, written to a prompt that asks for a simple market-data evaluation of the signal rather than a full P&L study. Only ideas that test a quantitative signal were included, so this folder covers fewer ideas than `seed_idea_plans/`. |
 | `data/eval_items/` | One JSON eval item per idea, built by `fin-discrim-item` from a seed idea and the two matching plan files. Holds both plans plus the hand-written gold preference and critiques used for scoring. |
 | `evals/` | Saved `--json-out` runs. `haiku.json` is an example, from a run of `claude-haiku-4-5` over the five items. |
-| `src/fin_discrim/` | The package behind both commands — see its [README](src/fin_discrim/README.md) for the module layout, the options, and how position bias is measured. |
+| `src/fin_discrim/` | The package behind the commands — see its [README](src/fin_discrim/README.md) for the module layout, the options, and how position bias is measured. |
 | `tests/` | Test suite, run with `uv run --locked pytest`. |
 
 Each plan markdown file carries the plan, then a `## Critique of the Plan`
@@ -89,8 +89,14 @@ uv run --locked pytest
 ```
 uv run --locked fin-discrim --both-orders --json-out evals/latest.json
 uv run --locked fin-discrim-item --seed-ideas docs/seed_ideas.md --list-seeds
+uv run --locked fin-pointwise --list-dimensions
 ```
 
-Both commands need Anthropic credentials — `export ANTHROPIC_API_KEY=...` or
+`fin-discrim` is the pairwise comparison: two plans for the same idea, scored
+against the expert preference. `fin-pointwise` is an early, deliberately small
+pointwise alternative — it scores a single plan and its critique against named
+quality dimensions, and is meant to be extended with more dimensions over time.
+
+The judging commands need Anthropic credentials — `export ANTHROPIC_API_KEY=...` or
 `ant auth login`. `fin-discrim --help` and the package
 [README](src/fin_discrim/README.md) cover the rest of the options.

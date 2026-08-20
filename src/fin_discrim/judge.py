@@ -163,16 +163,17 @@ def capabilities_for(model: str) -> ModelCapabilities:
 
 
 def request_params(
-    model: str, effort: Effort
+    model: str, effort: Effort, schema: dict[str, object]
 ) -> tuple[ThinkingConfigParam | Omit, OutputConfigParam]:
     """The ``thinking``/``output_config`` pair a given model will accept.
 
     Models older than the 4.6 generation reject both adaptive thinking and
-    ``effort``; they keep the JSON schema, which every judged model supports.
+    ``effort``; they keep ``schema``, since structured output is supported on
+    every model this project judges with.
     """
     capabilities = capabilities_for(model)
     output_config: OutputConfigParam = {
-        "format": {"type": "json_schema", "schema": _Verdict.model_json_schema()}
+        "format": {"type": "json_schema", "schema": schema}
     }
     if capabilities.effort:
         output_config["effort"] = effort
@@ -214,7 +215,9 @@ def judge_item(
     Never raises for API or validation problems; those come back as a
     :class:`JudgementFailure` so one bad call cannot abort a whole run.
     """
-    thinking, output_config = request_params(model, effort)
+    thinking, output_config = request_params(
+        model, effort, _Verdict.model_json_schema()
+    )
     messages: list[MessageParam] = [
         {"role": "user", "content": build_prompt(item, order)}
     ]
